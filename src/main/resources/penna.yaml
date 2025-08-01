@@ -1,0 +1,24 @@
+#watch: true
+#loggers:
+#  io.akikr.demopostgredbapp.bookmark:
+#    level: info
+#    fields:
+#      # These are the default fields. You can remove some fields if you want to
+#      - level
+#      - logger
+#      - thread
+#      - data
+#      - mdc
+#      - markers
+#      - message
+#      - throwable
+#    exceptions:
+#      # Whether penna will try to avoid printing duplicated log messages.
+#      # By default, this feature is on, which means once it prints a log message it
+#      # has seen before, it will short-circuit out of printing that stack trace
+#      deduplicate: true
+#      # The maximum number of frames in the stack it will print
+#      maxDepth: 64
+#      # If the exceptions contains parents, what is the maximum depth
+#      # Penna will traverse.
+#      traverseDepth: 2

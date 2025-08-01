@@ -1,0 +1,56 @@
+services:
+  postgres-db:
+    image: 'postgres:17.5-alpine'
+    environment:
+      - 'POSTGRES_DB=my_db'
+      - 'POSTGRES_USER=my_user'
+      - 'POSTGRES_PASSWORD=secret'
+    ports:
+      - '5432'
+    volumes:
+#      - ./src/main/resources/db/migration:/docker-entrypoint-initdb.d
+      - ./src/main/resources/db/init-data.sql:/docker-entrypoint-initdb.d/init.sql
+
+  postgres-app-mvn:
+    image: 127.0.0.1:6000/app/postgre-app-mvn:v1
+    environment:
+      - 'SPRING_DOCKER_COMPOSE_ENABLED=false'
+      - 'SPRING_PROFILES_ACTIVE=dev'
+      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/my_db'
+      - 'SPRING_DATASOURCE_USERNAME=my_user'
+      - 'SPRING_DATASOURCE_PASSWORD=secret'
+    ports:
+      - '8090:8090'
+    depends_on:
+      - postgres-db
+
+  postgres-app-jre:
+      image: app/postgre-app-jre:v1
+      build:
+        dockerfile: jre.Dockerfile
+        context: .
+      environment:
+#        - 'APP_ARGS=--spring.profiles.active=dev --spring.datasource.url=jdbc:postgresql://postgres-db:5432/my_db --spring.datasource.username=my_user --spring.datasource.password=secret'
+        - 'SPRING_PROFILES_ACTIVE=dev'
+        - 'SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/my_db'
+        - 'SPRING_DATASOURCE_USERNAME=my_user'
+        - 'SPRING_DATASOURCE_PASSWORD=secret'
+      ports:
+        - '8090:8090'
+      depends_on:
+        - postgres-db
+
+  postgres-app-native:
+    image: app/postgre-app-native:v1
+    build:
+      dockerfile: native.Dockerfile
+      context: .
+    environment:
+      - 'SPRING_PROFILES_ACTIVE=dev'
+      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/my_db'
+      - 'SPRING_DATASOURCE_USERNAME=my_user'
+      - 'SPRING_DATASOURCE_PASSWORD=secret'
+    ports:
+        - '8090:8090'
+    depends_on:
+        - postgres-db
