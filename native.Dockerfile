@@ -1,7 +1,7 @@
 # Set the base-image for build stage
-FROM base-jdk:v21-graal-amd AS build
+FROM base-jdk:v21-graal-arm AS build
 # Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/app"
+LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
 LABEL maintainer="ankit akikr@duck.com"
 # Set up working directory
 WORKDIR /usr/app
@@ -10,16 +10,16 @@ COPY pom.xml .
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
 COPY . .
 # Build the application
-RUN --mount=type=cache,target=/root/.m2 mvn clean package -Pnative -DskipTests -B
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -Pnative native:compile-no-fork -DskipTests -B
 
 # Set the base-image for final stage
 FROM ubuntu:24.10
 # Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/app"
+LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
 LABEL maintainer="ankit akikr@duck.com"
 # Copy the artifact from build-stage
 WORKDIR /usr/webapp
-COPY --from=build /usr/app/target/native-app /usr/webapp/app
+COPY --from=build /usr/app/target/*-app /usr/webapp/app
 # Define environment variables for application-arguments
 ENV APP_ARGS=""
 # Build the application start-up script

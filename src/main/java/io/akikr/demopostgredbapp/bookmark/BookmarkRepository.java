@@ -32,7 +32,7 @@ class BookmarkRepository {
         // Checking for valid pageNumber or pageSize
         isPageNumberOrPageSizeValid(pageNumber, pageSize);
         // Getting offset value from pageNumber and pageSize
-        var offset =  (pageNumber * pageSize);
+        var offset = (pageNumber * pageSize);
 
         return jdbcClient.sql(SELECT_BOOKMARKS_QUERY)
                 .param("offset", offset)
@@ -42,10 +42,10 @@ class BookmarkRepository {
     }
 
     private static void isPageNumberOrPageSizeValid(Integer pageNumber, Integer pageSize) throws IllegalStateException {
-        if(Objects.isNull(pageNumber) || pageNumber < 0){
+        if (Objects.isNull(pageNumber) || pageNumber < 0) {
             throw new IllegalArgumentException("pageNumber must be greater than 0");
         }
-        if(Objects.isNull(pageSize) || pageSize <= 0){
+        if (Objects.isNull(pageSize) || pageSize <= 0) {
             throw new IllegalArgumentException("pageSize must be greater than 0");
         }
     }

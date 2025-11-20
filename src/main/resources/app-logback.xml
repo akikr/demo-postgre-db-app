@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <springProperty name="CONSOLE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.console"/>
+    <springProperty name="CONSOLE_LOG_CHARSET" source="logging.console.charset"/>
+<!--    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>-->
+<!--    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>-->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [pdb-app] [%thread] [%X{traceId:-}:%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>app-logs/app.json</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>app-logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
+            <format>${FILE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>
+            <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </root>
+
+    <logger name="org.springframework" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="org.springframework.boot.docker.compose" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="org.springframework.web" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="org.springframework.web.servlet.DispatcherServlet" additivity="false" level="DEBUG">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+
+    <logger name="io.akikr.demopostgredbapp.config.AppLoggingFilter" additivity="false" level="DEBUG">
+        <appender-ref ref="CONSOLE"/>
+<!--        <appender-ref ref="FILE"/>-->
+    </logger>
+</configuration>

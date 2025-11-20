@@ -1,0 +1,116 @@
+services:
+  postgres-db:
+    image: 'postgres:17.5-alpine'
+    environment:
+      - 'POSTGRES_DB=${DB_NAME}'
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-data.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+        test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h localhost -p 5432']
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 30s
+    env_file:
+      - dev.env
+
+  app-native:
+    image: app/postgre-app-native:v0
+    build:
+      context: .
+      dockerfile: native.Dockerfile
+    environment:
+      DB_HOST: 'postgres-db'
+      DB_PORT: '5432'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      APP_ARGS: '--spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres'
+    ports:
+        - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    env_file:
+      - dev.env
+
+  app-jre:
+    image: app/postgre-app-jre:v1
+    build:
+      context: .
+      dockerfile: jre.Dockerfile
+    environment:
+      DB_HOST: 'postgres-db'
+      DB_PORT: '5432'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      JAVA_OPTS: '-Xmx300m'
+      APP_ARGS: '--spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres'
+    ports:
+        - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    env_file:
+      - dev.env
+
+  ##To build this image: ./mvnw clean package jib:dockerBuild -DskipTests
+  app-jib:
+    image: app/postgre-app-jib:v1
+    environment:
+      DB_HOST: 'postgres-db'
+      DB_PORT: '5432'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+    # For images built via jib-maven-plugin, run below way to pass app args
+    command: >
+      --spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres
+    ports:
+      - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    env_file:
+      - dev.env
+
+  ##To build this image: ./mvnw clean package spring-boot:build-image-no-fork -DskipTests -Dspring-boot.build-image.env.BP_BASE_IMAGE="paketobuildpacks/builder-noble-java-tiny:latest" -Dspring-boot.build-image.env.BP_NATIVE_IMAGE_BUILD_ARGUMENTS="-H:Architecture=linux/amd64"
+  app-sb:
+    image: app/postgre-app-sb:v1
+    environment:
+      DB_HOST: 'postgres-db'
+      DB_PORT: '5432'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      JAVA_TOOL_OPTIONS: '-Xmx300m'
+    command: >
+      --spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres
+    ports:
+      - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    env_file:
+      - dev.env
+
+volumes:
+  postgres_data:

@@ -1,0 +1,53 @@
+services:
+  postgres-db:
+    profiles: ["postgres"]
+    image: 'postgres:17.5-alpine'
+    environment:
+      - 'POSTGRES_DB=${DB_NAME}'
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-data.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+        test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h localhost -p 5432']
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 30s
+    env_file:
+      - .env
+
+  yugabyte-db:
+    profiles: ["yugabyte"]
+    image: yugabytedb/yugabyte:2025.1.1.1-b1
+    ports:
+      - "7001:7000"         # Master UI
+      - "9001:9000"         # Tserver UI
+      - '5433:5433'         # YSQL (Postgres API)
+    environment:
+      - 'POSTGRES_DB=yugabyte'
+      - 'POSTGRES_USER=yugabyte'
+      - 'POSTGRES_PASSWORD=yugabyte'
+    # Start Yugabyte-DB with default user and database
+    command: >
+      bin/yugabyted start --daemon=false
+    volumes:
+      - yugabyte_data:/home/yugabyte/yb_data
+      - ./src/main/resources/db/init-data.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "/home/yugabyte/bin/ysqlsh -h $(hostname) -c 'SELECT 1;' || exit 1" ]
+      interval: 45s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    env_file:
+      - .env
+    ## To login into YSQL: docker exec -it yugabyte-db bash -c '/home/yugabyte/bin/ysqlsh -h $(hostname)'
+    ## To load schema via SQL scripts: docker exec -it yugabyte-db bash -c '/home/yugabyte/bin/ysqlsh -h $(hostname) -f /docker-entrypoint-initdb.d/*.sql'
+
+volumes:
+  postgres_data:
+  yugabyte_data:

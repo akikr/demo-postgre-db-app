@@ -1,7 +1,7 @@
 # Set the base-image for build stage
-FROM base-jdk:v21-graal-amd AS build
+FROM base-jdk:v21-graal-arm AS build
 # Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/app"
+LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
 LABEL maintainer="ankit akikr@duck.com"
 # Set up working directory
 WORKDIR /usr/app
@@ -27,7 +27,7 @@ RUN jlink --add-modules $(cat modules.info) \
 # Set the base-image for final stage
 FROM ubuntu:24.10
 # Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/app"
+LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
 LABEL maintainer="ankit akikr@duck.com"
 # Set JAVA_HOME using application specific JRE from build-stage
 ENV JAVA_HOME=/usr/lib/java/jre

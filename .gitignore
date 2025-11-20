@@ -32,3 +32,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+## Logs
+*.log
+*.json
+
+## Extra files
+.DS_Store
+
+.env
+
+*.jfr
+

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -32,6 +32,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <main.class>io.akikr.demopostgredbapp.DemoPostgreDbApp</main.class>
     </properties>
 
     <dependencies>
@@ -44,20 +45,24 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>tomcat-embed-el</artifactId>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.5.19</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.19</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -72,6 +77,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
         </dependency>
         <dependency>
             <artifactId>tomcat-embed-el</artifactId>
@@ -152,12 +161,6 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
     <build>
@@ -180,34 +183,59 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <imageName>127.0.0.1:6000/app/${project.artifactId}-mvn-jre:v1</imageName>-->
-<!--                    <image>-->
-<!--                        <builder>paketobuildpacks/builder-jammy-base</builder>-->
-<!--                        <runImage>paketobuildpacks/run-jammy-base</runImage>-->
-<!--                        <publish>true</publish>-->
-<!--                        <env>-->
-<!--                            <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>-->
-<!--                            <BP_NATIVE_IMAGE>false</BP_NATIVE_IMAGE>-->
-<!--                            <BP_JVM_JLINK_ENABLED>true</BP_JVM_JLINK_ENABLED>-->
-<!--                            <BP_OCI_ARCHITECTURES>linux/amd64,linux/arm64</BP_OCI_ARCHITECTURES>-->
-<!--                        </env>-->
-<!--                    </image>-->
-<!--                    <cleanCache>true</cleanCache>-->
-<!--                </configuration>-->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
+                <!-- To build image using this plugin:
+                ./mvnw clean package spring-boot:build-image-no-fork -DskipTests -Dspring-boot.build-image.env.BP_BASE_IMAGE="paketobuildpacks/builder-noble-java-tiny:latest" -Dspring-boot.build-image.env.BP_NATIVE_IMAGE_BUILD_ARGUMENTS="-H:Architecture=linux/amd64"
+                -->
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>${main.class}</mainClass>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
+                    <image>
+                        <name>app/${project.artifactId}-sb:v1</name>
+                    </image>
+                    <environmentVariables>
+                        <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+                    </environmentVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- To build image using this plugin: ./mvnw clean package jib:dockerBuild -DskipTests -->
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>3.4.6</version>
                 <configuration>
+                    <from>
+                        <platforms>
+                            <platform>
+                                <architecture>amd64</architecture>
+                                <os>linux</os>
+                            </platform>
+                            <platform>
+                                <architecture>arm64</architecture>
+                                <os>linux</os>
+                            </platform>
+                        </platforms>
+                    </from>
                     <to>
-                        <image>127.0.0.1:6000/app/${project.artifactId}-mvn:v1</image>
+                        <image>app/${project.artifactId}-jib:v1</image>
                     </to>
                     <container>
-                        <mainClass>io.akikr.demopostgredbapp.DemoPostgreDbApp</mainClass>
+                        <mainClass>${main.class}</mainClass>
                     </container>
                 </configuration>
             </plugin>
@@ -229,8 +257,9 @@
                                     <goal>build</goal>
                                 </goals>
                                 <configuration>
-                                    <imageName>native-app</imageName>
+                                    <imageName>${project.artifactId}</imageName>
                                     <buildArgs>
+                                        <!-- for faster builds -->
                                         <buildArg>-Ob</buildArg>
                                         <buildArg>--verbose</buildArg>
                                         <buildArg>--enable-sbom</buildArg>
@@ -240,24 +269,6 @@
                             </execution>
                         </executions>
                     </plugin>
-<!--                    <plugin>-->
-<!--                        <groupId>org.springframework.boot</groupId>-->
-<!--                        <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                        <configuration>-->
-<!--                            <imageName>127.0.0.1:6000/app/${project.artifactId}-mvn-native:v1</imageName>-->
-<!--                            <image>-->
-<!--                                <builder>paketobuildpacks/builder-jammy-tiny</builder>-->
-<!--                                <runImage>paketobuildpacks/run-jammy-tiny</runImage>-->
-<!--                                <publish>true</publish>-->
-<!--                                <env>-->
-<!--                                    <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>-->
-<!--                                    <BP_JVM_JLINK_ENABLED>false</BP_JVM_JLINK_ENABLED>-->
-<!--                                    <BP_OCI_ARCHITECTURES>linux/amd64,linux/arm64</BP_OCI_ARCHITECTURES>-->
-<!--                                </env>-->
-<!--                            </image>-->
-<!--                            <cleanCache>true</cleanCache>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
                 </plugins>
             </build>
         </profile>
