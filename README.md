@@ -19,7 +19,6 @@ The project relies on a few key dependencies to function:
 *   **Spring Boot**: The core framework for building the application.
 *   **Spring Data JDBC**: For easy integration with the PostgreSQL database.
 *   **Spring Web**: To create the RESTful API.
-
 *   **PostgreSQL Driver**: The JDBC driver for connecting to the PostgreSQL database.
 *   **Testcontainers**: For running integration tests with a real database.
 
@@ -84,9 +83,7 @@ The `demo-postgre-app` project is a great starting point for anyone looking to l
 
 ## Contributing
 
-To explore the code, run the application, and experiment with the API. If you have any questions or suggestions, feel free to open an issue or submit a pull request.
-
-Feel free to contribute to this project!
+Explore the code, run the application, and experiment with the API.  Feel free to contribute to this project!
 
 For questions or issues, please open a GitHub issue or submit a pull request.
 
