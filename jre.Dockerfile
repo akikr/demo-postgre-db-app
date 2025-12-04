@@ -1,8 +1,5 @@
 # Set the base-image for build stage
 FROM base-jdk:v21-graal-arm AS build
-# Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
-LABEL maintainer="ankit akikr@duck.com"
 # Set up working directory
 WORKDIR /usr/app
 COPY pom.xml .

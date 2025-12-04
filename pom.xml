@@ -15,8 +15,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>demo-postgre-app</name>
     <description>Demo Postgre DB Application</description>
+    <url>https://github.com/akikr/demo-postgre-db-app</url>
 
-    <url/>
     <licenses>
         <license/>
     </licenses>
@@ -202,6 +202,7 @@
                     </image>
                     <environmentVariables>
                         <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+                        <BP_IMAGE_LABELS>org.opencontainers.image.source="${project.url}" maintainer="ankit akikr@duck.com"</BP_IMAGE_LABELS>
                     </environmentVariables>
                 </configuration>
                 <executions>
