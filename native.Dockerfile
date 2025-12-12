@@ -2,12 +2,11 @@
 FROM base-jdk:v21-graal-arm AS build
 # Set up working directory
 WORKDIR /usr/app
-COPY pom.xml .
+COPY . .
 # Download the dependencies
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
-COPY . .
 # Build the application
-RUN --mount=type=cache,target=/root/.m2 mvn clean package -Pnative native:compile-no-fork -DskipTests -B
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -Pnative native:compile-no-fork -DskipTests -Dspring.aot.native-image.args="-Ob0 --no-fallback" -B
 
 # Set the base-image for final stage
 FROM ubuntu:24.10

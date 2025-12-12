@@ -263,8 +263,6 @@
                                         <!-- for faster builds -->
                                         <buildArg>-Ob</buildArg>
                                         <buildArg>--verbose</buildArg>
-                                        <buildArg>--enable-sbom</buildArg>
-                                        <buildArg>-H:+BuildReport</buildArg>
                                     </buildArgs>
                                 </configuration>
                             </execution>
