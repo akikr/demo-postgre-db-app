@@ -22,7 +22,7 @@ final class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public ResponseEntity<?> getAllBookmarks(Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Map<String, Object>> getAllBookmarks(Integer pageNumber, Integer pageSize) {
         log.info("Fetching all bookmarks for pageNumber[{}] and pageSize[{}]", pageNumber, pageSize);
         try {
             List<Bookmark> bookmarks = bookmarkRepository.findAll(pageNumber, pageSize);
@@ -41,7 +41,7 @@ final class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public ResponseEntity<?> getBookmarkById(Long id) {
+    public ResponseEntity<Map<String, Object>> getBookmarkById(Long id) {
         log.info("Fetching bookmark by ID: {}", id);
         try {
             Bookmark bookmark = bookmarkRepository.findById(id)
@@ -59,7 +59,7 @@ final class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public ResponseEntity<?> createBookmark(Bookmark bookmark) {
+    public ResponseEntity<Map<String, Object>> createBookmark(Bookmark bookmark) {
         log.info("Creating bookmark with title: {}", bookmark.title());
         try {
             Long savedId = requireNonNull(bookmarkRepository.save(bookmark), "Failed to create bookmark");
@@ -74,7 +74,7 @@ final class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public ResponseEntity<?> updateBookmark(Bookmark bookmark) {
+    public ResponseEntity<Map<String, Object>> updateBookmark(Bookmark bookmark) {
         log.info("Updating bookmark with ID: {}", bookmark.id());
         try {
             Boolean isUpdated = bookmarkRepository.update(bookmark);
@@ -91,7 +91,7 @@ final class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public ResponseEntity<?> deleteBookmarkById(Long id) {
+    public ResponseEntity<Map<String, Object>> deleteBookmarkById(Long id) {
     log.info("Deleting bookmark with ID: {}", id);
         try {
             Boolean isDeleted = bookmarkRepository.deleteById(id);
