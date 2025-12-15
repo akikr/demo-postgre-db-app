@@ -22,32 +22,31 @@
         <includeCallerData>false</includeCallerData>
     </appender>
 
-    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>
-    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>
+<!--    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>-->
+<!--    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>-->
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/logs/app.json</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>/var/logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>2GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">
-            <format>${FILE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>
-            <charset>${FILE_LOG_CHARSET}</charset>
-        </encoder>
-    </appender>
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>/var/logs/app.json</file>-->
+<!--        <append>true</append>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>/var/logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>-->
+<!--            <maxFileSize>100MB</maxFileSize>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--            <totalSizeCap>2GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">-->
+<!--            <format>${FILE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>-->
+<!--            <charset>${FILE_LOG_CHARSET}</charset>-->
+<!--        </encoder>-->
+<!--    </appender>-->
 
     <!-- Async Appender wrapping the file appender -->
-    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="FILE"/>
-        <!-- Optional: Drop logs if queue is full to avoid blocking -->
-        <discardingThreshold>0</discardingThreshold>
-        <queueSize>5000</queueSize>
-        <includeCallerData>false</includeCallerData>
-    </appender>
+<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+<!--        <queueSize>5000</queueSize>-->
+<!--        <includeCallerData>false</includeCallerData>-->
+<!--    </appender>-->
 
     <root level="INFO" additivity="false">
         <appender-ref ref="ASYNC_CONSOLE"/>
