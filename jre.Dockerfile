@@ -1,5 +1,5 @@
 # Set the base-image for build stage
-FROM base-jdk:v21-graal-arm AS build
+FROM base-jdk:v25-graal-arm AS build
 # Set up working directory
 WORKDIR /usr/app
 COPY pom.xml .
