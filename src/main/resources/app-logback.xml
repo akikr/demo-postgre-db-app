@@ -5,8 +5,6 @@
 
     <springProperty name="CONSOLE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.console"/>
     <springProperty name="CONSOLE_LOG_CHARSET" source="logging.console.charset"/>
-<!--    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>-->
-<!--    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>-->
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -15,11 +13,23 @@
         </encoder>
     </appender>
 
+    <!-- Async Appender wrapping the console appender -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE"/>
+        <!-- Optional: Drop logs if queue is full to avoid blocking -->
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>5000</queueSize>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>
+    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>
+
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>app-logs/app.json</file>
+        <file>/var/logs/app.json</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>app-logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
+            <fileNamePattern>/var/logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>30</maxHistory>
             <totalSizeCap>2GB</totalSizeCap>
@@ -30,38 +40,47 @@
         </encoder>
     </appender>
 
+    <!-- Async Appender wrapping the file appender -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <!-- Optional: Drop logs if queue is full to avoid blocking -->
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>5000</queueSize>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
     <root level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </root>
 
     <logger name="org.springframework" level="WARN" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 
     <logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 
     <logger name="org.springframework.boot.docker.compose" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 
     <logger name="org.springframework.web" level="WARN" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 
     <logger name="org.springframework.web.servlet.DispatcherServlet" additivity="false" level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 
     <logger name="io.akikr.demopostgredbapp.config.AppLoggingFilter" additivity="false" level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
-<!--        <appender-ref ref="FILE"/>-->
+        <appender-ref ref="ASYNC_CONSOLE"/>
+<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </logger>
 </configuration>

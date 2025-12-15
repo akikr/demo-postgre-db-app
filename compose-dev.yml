@@ -41,6 +41,8 @@ services:
         condition: service_healthy
     env_file:
       - dev.env
+#    volumes:
+#      - /tmp/app:/var/logs
 
   app-jre:
     image: app/postgre-app-jre:v1
@@ -65,6 +67,8 @@ services:
         condition: service_healthy
     env_file:
       - dev.env
+#    volumes:
+#      - /tmp/app:/var/logs
 
   ##To build this image: ./mvnw clean package jib:dockerBuild -DskipTests
   app-jib:
