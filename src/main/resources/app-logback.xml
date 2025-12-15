@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- Access the spring.application.name property and assign it to a Logback variable named 'APP_NAME' -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
+
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
@@ -8,9 +11,14 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [pdb-app] [%thread] [%X{traceId:-}:%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [${APP_NAME}] [%thread] [%X{traceId:-}:%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
             <charset>${CONSOLE_LOG_CHARSET}</charset>
         </encoder>
+        <!-- Enable this [logging.structured.format.console=logstash] in application.properties to use the below format of logging -->
+<!--        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">-->
+<!--            <format>${CONSOLE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>-->
+<!--            <charset>${CONSOLE_LOG_CHARSET}</charset>-->
+<!--        </encoder>-->
     </appender>
 
     <!-- Async Appender wrapping the console appender -->
