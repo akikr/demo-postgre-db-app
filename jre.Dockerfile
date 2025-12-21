@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -B
 # Build the application specific JRE
 RUN jdeps --ignore-missing-deps -q \
     --recursive \
-    --multi-release 21 \
+    --multi-release 25 \
     --print-module-deps \
     --class-path 'target/dependencies/*' \
     target/*.jar > modules.info
