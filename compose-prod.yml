@@ -70,7 +70,6 @@ services:
       OTEL_LOGS_EXPORTER: otlp
       JAVA_OPTS: >-
         -Xmx500m
-        -javaagent:/opt/grafana/grafana-opentelemetry-java.jar
       APP_ARGS: >-
         --spring.threads.virtual.enabled=true
         --spring.docker.compose.enabled=false
@@ -99,10 +98,50 @@ services:
         condition: service_healthy
       lgtm:
         condition: service_started
-    volumes:
-      - ./configs/grafana-opentelemetry-java.jar:/opt/grafana/grafana-opentelemetry-java.jar
     env_file:
       - .env
+
+  app-native:
+      image: app/postgre-app-native:v0
+      build:
+        context: .
+        dockerfile: native.Dockerfile
+      environment:
+        DB_HOST: 'yugabyte-db'
+        DB_PORT: '5433'
+        DB_NAME: '${DB_NAME}'
+        DB_USER: '${DB_USER}'
+        DB_PASSWORD: '${DB_PASSWORD}'
+        APP_ARGS: >-
+          --spring.threads.virtual.enabled=true
+          --spring.docker.compose.enabled=false
+          --spring.profiles.active=yugabyte
+          --server.shutdown=immediate
+          --management.otlp.metrics.export.enabled=true
+          --management.tracing.sampling.probability=0.1
+          --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics
+          --management.opentelemetry.tracing.export.otlp.endpoint=http://lgtm:4318/v1/traces
+          --management.logging.export.enabled=true
+          --management.opentelemetry.logging.export.otlp.endpoint=http://lgtm:4318/v1/logs
+      ports:
+        - "8090:8090"
+      deploy:
+        mode: replicated
+        replicas: 1
+        resources:
+          limits:
+            cpus: '1.0'
+            memory: 512M
+          reservations:
+            cpus: '0.5'
+            memory: 300M
+      depends_on:
+        postgres-db:
+          condition: service_healthy
+        lgtm:
+          condition: service_started
+      env_file:
+        - .env
 
   lgtm:
     image: grafana/otel-lgtm:0.13.0

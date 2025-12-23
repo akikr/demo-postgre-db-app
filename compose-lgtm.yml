@@ -47,15 +47,8 @@ services:
       DB_NAME: '${DB_NAME}'
       DB_USER: '${DB_USER}'
       DB_PASSWORD: '${DB_PASSWORD}'
-      OTEL_SERVICE_NAME: demo-postgre-app
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
-      OTEL_PROFILING_ENABLED: "true"
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: otlp
       JAVA_OPTS: >-
         -Xmx500m
-        -javaagent:/opt/grafana/grafana-opentelemetry-java.jar
       APP_ARGS: >-
         --spring.threads.virtual.enabled=true
         --spring.docker.compose.enabled=false
@@ -85,8 +78,6 @@ services:
         condition: service_healthy
       lgtm:
         condition: service_started
-    volumes:
-      - ./configs/grafana-opentelemetry-java.jar:/opt/grafana/grafana-opentelemetry-java.jar
 
   app-native:
     image: app/postgre-app-native:v0
@@ -126,8 +117,6 @@ services:
         condition: service_healthy
       lgtm:
         condition: service_started
-    env_file:
-      - .env
 
 volumes:
   postgres_data:
