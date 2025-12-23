@@ -1,0 +1,133 @@
+services:
+
+  lgtm:
+    image: grafana/otel-lgtm:0.13.0
+    container_name: lgtm
+    ports:
+      - '3000:3000'   # Grafana UI
+      - '4317:4317'   # OTLP gRPC
+      - '4318:4318'   # OTLP HTTP
+      - '9090:9090'   # Prometheus UI
+      - '4040:4040'   # Loki Query UI
+    environment:
+      - 'GF_PATHS_DATA=/data/grafana'
+      - 'ENABLE_LOGS_ALL=true'
+    volumes:
+      - lgtm_data:/data/grafana
+      - lgtm_data:/data/prometheus
+      - lgtm_data:/data/loki
+
+  postgres-db:
+    image: 'postgres:17.5-alpine'
+    container_name: postgres-db
+    environment:
+      - 'POSTGRES_DB=${DB_NAME}'
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/db/init-data.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+        test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h localhost -p 5432']
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 30s
+
+  app-jre:
+    image: app/postgre-app-jre:v1
+    build:
+      context: .
+      dockerfile: jre.Dockerfile
+    environment:
+      DB_HOST: 'postgres-db'
+      DB_PORT: '5432'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      OTEL_SERVICE_NAME: demo-postgre-app
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
+      OTEL_PROFILING_ENABLED: "true"
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      JAVA_OPTS: >-
+        -Xmx500m
+        -javaagent:/opt/grafana/grafana-opentelemetry-java.jar
+      APP_ARGS: >-
+        --spring.threads.virtual.enabled=true
+        --spring.docker.compose.enabled=false
+        --spring.profiles.active=postgres
+        --management.otlp.metrics.export.enabled=true
+        --management.tracing.sampling.probability=0.1
+        --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics 
+        --management.opentelemetry.tracing.export.otlp.endpoint=http://lgtm:4318/v1/traces
+        --management.logging.export.enabled=true
+        --management.opentelemetry.logging.export.otlp.endpoint=http://lgtm:4318/v1/logs
+        --app.logging.filter.include-response-body=false
+    ports:
+        - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 300M
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      lgtm:
+        condition: service_started
+    volumes:
+      - ./configs/grafana-opentelemetry-java.jar:/opt/grafana/grafana-opentelemetry-java.jar
+
+  app-native:
+    image: app/postgre-app-native:v0
+    build:
+      context: .
+      dockerfile: native.Dockerfile
+    environment:
+      DB_HOST: 'yugabyte-db'
+      DB_PORT: '5433'
+      DB_NAME: '${DB_NAME}'
+      DB_USER: '${DB_USER}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      APP_ARGS: >-
+        --spring.threads.virtual.enabled=true
+        --spring.docker.compose.enabled=false
+        --spring.profiles.active=postgres
+        --management.otlp.metrics.export.enabled=true
+        --management.tracing.sampling.probability=0.1
+        --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics 
+        --management.opentelemetry.tracing.export.otlp.endpoint=http://lgtm:4318/v1/traces
+        --management.logging.export.enabled=true
+        --management.opentelemetry.logging.export.otlp.endpoint=http://lgtm:4318/v1/logs
+    ports:
+      - "8090:8090"
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 300M
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      lgtm:
+        condition: service_started
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+  lgtm_data:
