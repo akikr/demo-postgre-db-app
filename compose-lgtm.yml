@@ -60,6 +60,7 @@ services:
         --spring.threads.virtual.enabled=true
         --spring.docker.compose.enabled=false
         --spring.profiles.active=postgres
+        --server.shutdown=immediate
         --management.otlp.metrics.export.enabled=true
         --management.tracing.sampling.probability=0.1
         --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics 
