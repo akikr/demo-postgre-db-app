@@ -39,6 +39,7 @@ build/
 
 ## Extra files
 .DS_Store
+**/.DS_Store
 
 .env
 
