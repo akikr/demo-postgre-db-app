@@ -73,7 +73,7 @@ services:
       APP_ARGS: >-
         --spring.threads.virtual.enabled=true
         --spring.docker.compose.enabled=false
-        --spring.profiles.active=yugabyte
+        --spring.profiles.active=yugabyte,prod
         --server.shutdown=immediate
         --management.otlp.metrics.export.enabled=true
         --management.tracing.sampling.probability=0.1
@@ -115,7 +115,7 @@ services:
         APP_ARGS: >-
           --spring.threads.virtual.enabled=true
           --spring.docker.compose.enabled=false
-          --spring.profiles.active=yugabyte
+          --spring.profiles.active=yugabyte,prod
           --server.shutdown=immediate
           --management.otlp.metrics.export.enabled=true
           --management.tracing.sampling.probability=0.1
