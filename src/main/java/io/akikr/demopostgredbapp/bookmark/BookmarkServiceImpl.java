@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 @Service
@@ -25,6 +26,9 @@ final class BookmarkServiceImpl implements BookmarkService {
     public ResponseEntity<Map<String, Object>> getAllBookmarks(Integer pageNumber, Integer pageSize) {
         log.info("Fetching all bookmarks for pageNumber[{}] and pageSize[{}]", pageNumber, pageSize);
         try {
+            // Checking for valid pageNumber or pageSize
+            isPageNumberOrPageSizeValid(pageNumber, pageSize);
+
             List<Bookmark> bookmarks = bookmarkRepository.findAll(pageNumber, pageSize);
             if (bookmarks.isEmpty()) {
                 log.warn("No bookmarks found for pageNumber[{}] and pageSize[{}]", pageNumber, pageSize);
@@ -105,5 +109,14 @@ final class BookmarkServiceImpl implements BookmarkService {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Bookmark not found with ID: " + id));
+    }
+
+    private static void isPageNumberOrPageSizeValid(Integer pageNumber, Integer pageSize) throws IllegalStateException {
+        if (isNull(pageNumber) || pageNumber < 0) {
+            throw new IllegalArgumentException("pageNumber must be greater than 0");
+        }
+        if (isNull(pageSize) || pageSize <= 0) {
+            throw new IllegalArgumentException("pageSize must be greater than 0");
+        }
     }
 }

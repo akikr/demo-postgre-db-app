@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -22,15 +21,13 @@ class BookmarkRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Bookmark> findAll(Integer pageNumber, Integer pageSize) throws IllegalStateException {
+    public List<Bookmark> findAll(Integer pageNumber, Integer pageSize) throws IllegalArgumentException {
         final String SELECT_BOOKMARKS_QUERY = """
                 SELECT id, title, url, created_at FROM bookmarks
-                ORDER BY id
+                ORDER BY created_at DESC, id DESC
                 OFFSET :offset LIMIT :limit
                 """;
 
-        // Checking for valid pageNumber or pageSize
-        isPageNumberOrPageSizeValid(pageNumber, pageSize);
         // Getting offset value from pageNumber and pageSize
         var offset = (pageNumber * pageSize);
 
@@ -39,15 +36,6 @@ class BookmarkRepository {
                 .param("limit", pageSize)
                 .query(Bookmark.class)
                 .list();
-    }
-
-    private static void isPageNumberOrPageSizeValid(Integer pageNumber, Integer pageSize) throws IllegalStateException {
-        if (Objects.isNull(pageNumber) || pageNumber < 0) {
-            throw new IllegalArgumentException("pageNumber must be greater than 0");
-        }
-        if (Objects.isNull(pageSize) || pageSize <= 0) {
-            throw new IllegalArgumentException("pageSize must be greater than 0");
-        }
     }
 
     @Transactional(readOnly = true)
@@ -62,7 +50,7 @@ class BookmarkRepository {
                 .optional();
     }
 
-    @Transactional
+    @Transactional(rollbackFor =  Exception.class)
     public Long save(Bookmark bookmark) {
         final String INSERT_BOOKMARK_QUERY = """
                 INSERT INTO bookmarks (title, url, created_at) VALUES (:title, :url, :createdAt)
@@ -78,7 +66,7 @@ class BookmarkRepository {
         return keyHolder.getKeyAs(Long.class);
     }
 
-    @Transactional
+    @Transactional(rollbackFor =  Exception.class)
     public Boolean update(Bookmark bookmark) throws IllegalArgumentException {
         final String UPDATE_BOOKMARK_QUERY = """
                 UPDATE bookmarks SET title = :title, url = :url WHERE id = :id
@@ -95,7 +83,7 @@ class BookmarkRepository {
         return Boolean.TRUE;
     }
 
-    @Transactional
+    @Transactional(rollbackFor =  Exception.class)
     public Boolean deleteById(Long id) throws IllegalArgumentException {
         final String DELETE_BOOKMARK_BY_ID_QUERY = """
                 DELETE FROM bookmarks WHERE id = :id
