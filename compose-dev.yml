@@ -56,8 +56,11 @@ services:
       DB_NAME: '${DB_NAME}'
       DB_USER: '${DB_USER}'
       DB_PASSWORD: '${DB_PASSWORD}'
-      JAVA_OPTS: '-Xmx300m'
-      APP_ARGS: '--spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres'
+      JAVA_TOOL_OPTIONS: '-Xmx300m -XX:+UseG1GC'
+    command: |-
+      --spring.threads.virtual.enabled=true
+      --spring.docker.compose.enabled=false
+      --spring.profiles.active=postgres
     ports:
         - "8090:8090"
     deploy:
