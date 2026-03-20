@@ -31,7 +31,10 @@ services:
       DB_NAME: '${DB_NAME}'
       DB_USER: '${DB_USER}'
       DB_PASSWORD: '${DB_PASSWORD}'
-      APP_ARGS: '--spring.threads.virtual.enabled=true --spring.docker.compose.enabled=false --spring.profiles.active=postgres'
+    command: |-
+      --spring.threads.virtual.enabled=true
+      --spring.docker.compose.enabled=false
+      --spring.profiles.active=postgres
     ports:
         - "8090:8090"
     deploy:

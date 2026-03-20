@@ -21,7 +21,7 @@ RUN jlink --add-modules $(cat modules.info) \
     --no-man-pages \
     --output /app-jre
 
-# Set the base-image and use chisel for final-satge base image
+# Set the installer-image to use chiseled Ubuntu for final-satge base image
 FROM ubuntu:22.04 AS installer
 ARG CHISEL_VERSION=v1.4.0
 ARG TARGETARCH=arm64
@@ -57,7 +57,7 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 COPY --from=build /app-jre $JAVA_HOME
 # Copy the artifact from build-stage
 COPY --from=build /usr/app/target/*.jar /usr/webapp/app.jar
-# Set Permissions for the non-root user
+# Set the non-root user
 USER 1000
 # Expose the application port
 EXPOSE 8090

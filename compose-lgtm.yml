@@ -89,18 +89,18 @@ services:
       DB_NAME: '${DB_NAME}'
       DB_USER: '${DB_USER}'
       DB_PASSWORD: '${DB_PASSWORD}'
-      APP_ARGS: >-
-        --spring.threads.virtual.enabled=true
-        --spring.docker.compose.enabled=false
-        --spring.profiles.active=postgres,prod
-        --server.shutdown=immediate
-        --management.otlp.metrics.export.enabled=true
-        --management.tracing.sampling.probability=0.1
-        --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics 
-        --management.opentelemetry.tracing.export.otlp.endpoint=http://lgtm:4318/v1/traces
-        --management.logging.export.enabled=true
-        --management.opentelemetry.logging.export.otlp.endpoint=http://lgtm:4318/v1/logs
-        --app.logging.filter.include-response-body=false
+    command: |-
+      --spring.threads.virtual.enabled=true
+      --spring.docker.compose.enabled=false
+      --spring.profiles.active=postgres,prod
+      --server.shutdown=immediate
+      --management.otlp.metrics.export.enabled=true
+      --management.tracing.sampling.probability=0.1
+      --management.otlp.metrics.export.url=http://lgtm:4318/v1/metrics 
+      --management.opentelemetry.tracing.export.otlp.endpoint=http://lgtm:4318/v1/traces
+      --management.logging.export.enabled=true
+      --management.opentelemetry.logging.export.otlp.endpoint=http://lgtm:4318/v1/logs
+      --app.logging.filter.include-response-body=false
     ports:
       - "8090:8090"
     deploy:
