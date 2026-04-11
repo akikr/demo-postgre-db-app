@@ -9,6 +9,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 
 @JdbcTest
+@TestPropertySource(properties = {"spring.config.location=classpath:application-test.properties"})
 class BookmarkServiceTest extends PostgreTestContainer {
 
     @Autowired
