@@ -1,6 +1,12 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.instancio.Select.field;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
+
 import io.akikr.demopostgredbapp.PostgreTestContainer;
+import java.time.LocalDateTime;
 import org.instancio.Instancio;
 import org.instancio.generators.Generators;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,13 +16,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.instancio.Select.field;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @JdbcTest
 @TestPropertySource(properties = {"spring.config.location=classpath:application-test.properties"})
@@ -67,8 +66,14 @@ class BookmarkRepositoryTest extends PostgreTestContainer {
         // Arrange
         Bookmark bookmarkData = Instancio.of(Bookmark.class)
                 .generate(field("title"), gen -> gen.string().length(10))
-                .generate(field("url"), gen -> gen.string().prefix("https://").suffix(".com").lowerCase().length(10))
-                .generate(field("createdAt"), gen -> gen.temporal().localDateTime().range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
+                .generate(field("url"), gen -> gen.string()
+                        .prefix("https://")
+                        .suffix(".com")
+                        .lowerCase()
+                        .length(10))
+                .generate(field("createdAt"), gen -> gen.temporal()
+                        .localDateTime()
+                        .range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
                 .create();
         Long bookmarkId = bookmarkRepository.save(bookmarkData);
 
@@ -99,8 +104,14 @@ class BookmarkRepositoryTest extends PostgreTestContainer {
         // Arrange
         Bookmark bookmarkData = Instancio.of(Bookmark.class)
                 .generate(field("title"), Generators::string)
-                .generate(field("url"), gen -> gen.string().prefix("https://").suffix(".com").lowerCase().length(10))
-                .generate(field("createdAt"), gen -> gen.temporal().localDateTime().range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
+                .generate(field("url"), gen -> gen.string()
+                        .prefix("https://")
+                        .suffix(".com")
+                        .lowerCase()
+                        .length(10))
+                .generate(field("createdAt"), gen -> gen.temporal()
+                        .localDateTime()
+                        .range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
                 .create();
         Long bookmarkId = bookmarkRepository.save(bookmarkData);
 
@@ -117,7 +128,8 @@ class BookmarkRepositoryTest extends PostgreTestContainer {
     void shouldThrowExceptionWhenUpdatingNonExistentBookmark() {
         // Arrange
         Long nonExistentBookmarkId = 999L; // Assuming this ID does not exist
-        Bookmark bookmarkData = new Bookmark(nonExistentBookmarkId, "Updated Title", "https://updatedurl.com", LocalDateTime.now());
+        Bookmark bookmarkData =
+                new Bookmark(nonExistentBookmarkId, "Updated Title", "https://updatedurl.com", LocalDateTime.now());
 
         // Act & Assert
         assertThatThrownBy(() -> bookmarkRepository.update(bookmarkData))
@@ -130,8 +142,14 @@ class BookmarkRepositoryTest extends PostgreTestContainer {
         // Arrange
         Bookmark bookmarkData = Instancio.of(Bookmark.class)
                 .generate(field("title"), Generators::string)
-                .generate(field("url"), gen -> gen.string().prefix("https://").suffix(".com").lowerCase().length(10))
-                .generate(field("createdAt"), gen -> gen.temporal().localDateTime().range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
+                .generate(field("url"), gen -> gen.string()
+                        .prefix("https://")
+                        .suffix(".com")
+                        .lowerCase()
+                        .length(10))
+                .generate(field("createdAt"), gen -> gen.temporal()
+                        .localDateTime()
+                        .range(LocalDateTime.now(), LocalDateTime.now().plusSeconds(1)))
                 .create();
         Long bookmarkId = bookmarkRepository.save(bookmarkData);
 

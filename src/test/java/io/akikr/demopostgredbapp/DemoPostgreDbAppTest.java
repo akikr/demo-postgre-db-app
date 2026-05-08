@@ -1,12 +1,12 @@
 package io.akikr.demopostgredbapp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"spring.config.location=classpath:application-test.properties"})
@@ -24,6 +24,6 @@ class DemoPostgreDbAppTest extends PostgreTestContainer {
         assertThat(applicationContext.getBean("demoPostgreDbApp")).isInstanceOf(DemoPostgreDbApp.class);
 
         // Verify PostgreSQL container is running
-        assertThat(postgreSQLContainer.isRunning()).isTrue();
+        assertThat(POSTGRES_SQL_CONTAINER.isRunning()).isTrue();
     }
 }

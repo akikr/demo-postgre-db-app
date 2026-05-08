@@ -1,6 +1,13 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.instancio.Select.field;
+
 import io.akikr.demopostgredbapp.PostgreTestContainer;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.instancio.Select.field;
-
 @JdbcTest
 @TestPropertySource(properties = {"spring.config.location=classpath:application-test.properties"})
 class BookmarkServiceTest extends PostgreTestContainer {
@@ -27,7 +26,7 @@ class BookmarkServiceTest extends PostgreTestContainer {
     private JdbcClient jdbcClient;
 
     private BookmarkRepository bookmarkRepository;
-    private  BookmarkService bookmarkService;
+    private BookmarkService bookmarkService;
 
     @BeforeEach
     void setUp() {
@@ -111,11 +110,7 @@ class BookmarkServiceTest extends PostgreTestContainer {
                 .generate(field(Bookmark::createdAt), gen -> gen.temporal().localDateTime())
                 .create();
         Long id = bookmarkRepository.save(bookmarkData);
-        bookmarkData = new Bookmark(
-                id,
-                "Updated Title",
-                "https://updatedurl.com",
-                LocalDateTime.now());
+        bookmarkData = new Bookmark(id, "Updated Title", "https://updatedurl.com", LocalDateTime.now());
         // Act
         ResponseEntity<?> responseEntity = bookmarkService.updateBookmark(bookmarkData);
 

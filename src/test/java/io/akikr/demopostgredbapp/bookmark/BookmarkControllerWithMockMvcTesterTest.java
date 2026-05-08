@@ -1,5 +1,15 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,17 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @WebMvcTest(BookmarkController.class)
 @TestPropertySource(properties = {"spring.config.location=classpath:application-test.properties"})
@@ -35,34 +34,37 @@ class BookmarkControllerWithMockMvcTesterTest {
     @Test
     @DisplayName("GET /v1/bookmarks should return list of data")
     void getAllBookmarks() {
-        //Mock
-        Map<String, Object> data = Map.of("data", List.of(
-                new Bookmark(101L, "Demo-Title", "https://demo-url", LocalDateTime.now()),
-                new Bookmark(102L, "Test-Title", "https://test-url", LocalDateTime.now())
-        ));
-        when(bookmarkService.getAllBookmarks(anyInt(), anyInt())).thenReturn(ResponseEntity.ok().body(data));
+        // Mock
+        Map<String, Object> data = Map.of(
+                "data",
+                List.of(
+                        new Bookmark(101L, "Demo-Title", "https://demo-url", LocalDateTime.now()),
+                        new Bookmark(102L, "Test-Title", "https://test-url", LocalDateTime.now())));
+        when(bookmarkService.getAllBookmarks(anyInt(), anyInt()))
+                .thenReturn(ResponseEntity.ok().body(data));
 
-        //Arrange & Act
+        // Arrange & Act
         var result = mockMvcTester.get().uri("/v1/bookmarks").exchange();
 
-        //Assertion
+        // Assertion
         result.assertThat().hasStatusOk();
         result.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
-        result.assertThat().bodyJson()
-                .extractingPath("$.data")
-                .asArray()
-                .isNotEmpty();
+        result.assertThat().bodyJson().extractingPath("$.data").asArray().isNotEmpty();
 
-        //Arrange & Act
-        var resultWithPagination = mockMvcTester.get().uri("/v1/bookmarks")
+        // Arrange & Act
+        var resultWithPagination = mockMvcTester
+                .get()
+                .uri("/v1/bookmarks")
                 .requestAttr("page", "1")
                 .requestAttr("size", "1")
                 .exchange();
 
-        //Assertion
+        // Assertion
         resultWithPagination.assertThat().hasStatusOk();
         resultWithPagination.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
-        resultWithPagination.assertThat().bodyJson()
+        resultWithPagination
+                .assertThat()
+                .bodyJson()
                 .extractingPath("$.data")
                 .asArray()
                 .isNotEmpty();
@@ -73,40 +75,37 @@ class BookmarkControllerWithMockMvcTesterTest {
     @Test
     @DisplayName("GET /v1/bookmarks/{id} should return bookmark data of {id}")
     void getBookmarkById() {
-        //Mock
-        Map<String, Object> data = Map.of("data", List.of(
-                new Bookmark(101L, "Demo-Title", "https://demo-url", LocalDateTime.now())
-        ));
-        when(bookmarkService.getBookmarkById(anyLong())).thenReturn(ResponseEntity.ok().body(data));
+        // Mock
+        Map<String, Object> data =
+                Map.of("data", List.of(new Bookmark(101L, "Demo-Title", "https://demo-url", LocalDateTime.now())));
+        when(bookmarkService.getBookmarkById(anyLong()))
+                .thenReturn(ResponseEntity.ok().body(data));
 
-        //Arrange & Act
+        // Arrange & Act
         var result = mockMvcTester.get().uri("/v1/bookmarks/101").exchange();
 
-        //Assertion
+        // Assertion
         result.assertThat().hasStatusOk();
         result.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
-        result.assertThat().bodyJson()
-                .extractingPath("$.data.[0].id")
-                .isEqualTo(101);
-        result.assertThat().bodyJson()
-                .extractingPath("$.data.[0].title")
-                .isEqualTo("Demo-Title");
+        result.assertThat().bodyJson().extractingPath("$.data.[0].id").isEqualTo(101);
+        result.assertThat().bodyJson().extractingPath("$.data.[0].title").isEqualTo("Demo-Title");
 
-        //Verify
+        // Verify
         verify(bookmarkService, times(1)).getBookmarkById(anyLong());
     }
 
     @Test
     @DisplayName("POST /v1/bookmarks should return HttpStatus CREATED")
     void createBookmark() {
-        //Arrange
+        // Arrange
         var created = new Bookmark(201L, "New-Title", "https://new-url", LocalDateTime.now());
-        //Mock
+        // Mock
         when(bookmarkService.createBookmark(any(Bookmark.class)))
                 .thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(Map.of("data", created)));
 
-        //Act
-        var result = mockMvcTester.post()
+        // Act
+        var result = mockMvcTester
+                .post()
                 .uri("/v1/bookmarks")
                 .content("""
                         {
@@ -117,29 +116,27 @@ class BookmarkControllerWithMockMvcTesterTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .exchange();
 
-        //Assertion
+        // Assertion
         result.assertThat().hasStatus(HttpStatus.CREATED);
         result.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
-        result.assertThat().bodyJson()
-                .extractingPath("$.data.id")
-                .isEqualTo(201);
-        result.assertThat().bodyJson()
-                .extractingPath("$.data.title")
-                .isEqualTo("New-Title");
+        result.assertThat().bodyJson().extractingPath("$.data.id").isEqualTo(201);
+        result.assertThat().bodyJson().extractingPath("$.data.title").isEqualTo("New-Title");
 
-        //Verify
+        // Verify
         verify(bookmarkService, times(1)).createBookmark(any(Bookmark.class));
     }
 
     @Test
     @DisplayName("PUT /v1/bookmarks/{id} should return HttpStatus NO_CONTENT")
     void updateBookmark() {
-        //Mock
-        when(bookmarkService.updateBookmark(any(Bookmark.class))).thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(Map.of("data", "Bookmark updated successfully")));
+        // Mock
+        when(bookmarkService.updateBookmark(any(Bookmark.class)))
+                .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(Map.of("data", "Bookmark updated successfully")));
 
-        //Arrange & Act
-        var result = mockMvcTester.put()
+        // Arrange & Act
+        var result = mockMvcTester
+                .put()
                 .uri("/v1/bookmarks")
                 .content("""
                         {
@@ -151,29 +148,30 @@ class BookmarkControllerWithMockMvcTesterTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .exchange();
 
-        //Assertion
+        // Assertion
         result.assertThat().hasStatus(HttpStatus.NO_CONTENT);
         result.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
 
-        //Verify
+        // Verify
         verify(bookmarkService, times(1)).updateBookmark(any(Bookmark.class));
     }
 
     @Test
     @DisplayName("DELETE /v1/bookmarks/{id} should return HttpStatus NO_CONTENT")
     void deleteBookmarkById() {
-        //Mock
-        when(bookmarkService.deleteBookmarkById(anyLong())).thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(Map.of("data", "Bookmark deleted successfully")));
+        // Mock
+        when(bookmarkService.deleteBookmarkById(anyLong()))
+                .thenReturn(ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(Map.of("data", "Bookmark deleted successfully")));
 
-        //Arrange & Act
+        // Arrange & Act
         var result = mockMvcTester.delete().uri("/v1/bookmarks/101").exchange();
 
-        //Assertion
+        // Assertion
         result.assertThat().hasStatus(HttpStatus.NO_CONTENT);
         result.assertThat().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
 
-        //Verify
+        // Verify
         verify(bookmarkService, times(1)).deleteBookmarkById(anyLong());
     }
 }
