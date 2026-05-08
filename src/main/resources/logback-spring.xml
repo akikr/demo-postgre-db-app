@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Access the spring.application.name property and assign it to a Logback variable named 'APP_NAME' -->
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
-
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-    <springProperty name="CONSOLE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.console"/>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
     <springProperty name="CONSOLE_LOG_CHARSET" source="logging.console.charset"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -15,124 +11,34 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [${APP_NAME}] [%thread] [%X{traceId:-}:%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
             <charset>${CONSOLE_LOG_CHARSET}</charset>
         </encoder>
-        <!-- Enable this [logging.structured.format.console=logstash] in application.properties to use the below format of logging -->
-<!--        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">-->
-<!--            <format>${CONSOLE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>-->
-<!--            <charset>${CONSOLE_LOG_CHARSET}</charset>-->
-<!--        </encoder>-->
     </appender>
 
     <!-- Async Appender wrapping the console appender -->
     <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="CONSOLE"/>
-        <!-- Optional: Drop logs if queue is full to avoid blocking -->
         <discardingThreshold>0</discardingThreshold>
-        <queueSize>5000</queueSize>
+        <neverBlock>true</neverBlock>
+        <queueSize>10000</queueSize>
         <includeCallerData>false</includeCallerData>
     </appender>
 
-    <!--    <springProperty name="FILE_LOG_STRUCTURED_FORMAT" source="logging.structured.format.file"/>-->
-<!--    <springProperty name="FILE_LOG_CHARSET" source="logging.file.charset"/>-->
-
-<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-<!--        <file>/var/logs/app.json</file>-->
-<!--        <append>true</append>-->
-<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
-<!--            <fileNamePattern>/var/logs/app.%d{yyyy-MM-dd}.%i.json</fileNamePattern>-->
-<!--            <maxFileSize>100MB</maxFileSize>-->
-<!--            <maxHistory>30</maxHistory>-->
-<!--            <totalSizeCap>2GB</totalSizeCap>-->
-<!--        </rollingPolicy>-->
-<!--        <encoder class="org.springframework.boot.logging.logback.StructuredLogEncoder">-->
-<!--            <format>${FILE_LOG_STRUCTURED_FORMAT:-[%X{traceId:-}:%X{spanId:-}]}</format>-->
-<!--            <charset>${FILE_LOG_CHARSET}</charset>-->
-<!--        </encoder>-->
-<!--    </appender>-->
-
-    <!-- Async Appender wrapping the file appender -->
-<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
-<!--        <appender-ref ref="FILE"/>-->
-<!--        <discardingThreshold>0</discardingThreshold>-->
-<!--        <queueSize>5000</queueSize>-->
-<!--        <includeCallerData>false</includeCallerData>-->
-<!--    </appender>-->
-
-    <root level="INFO" additivity="false">
+    <root level="INFO" additivity="true">
         <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
     </root>
 
-    <logger name="org.springframework" level="WARN" additivity="false">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <logger name="org.springframework.boot.docker.compose" level="DEBUG" additivity="false">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <logger name="org.springframework.web" level="WARN" additivity="false">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <logger name="org.springframework.web.servlet.DispatcherServlet" additivity="false" level="DEBUG">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <logger name="io.akikr.demopostgredbapp.config.AppLoggingFilter" additivity="false" level="DEBUG">
-        <appender-ref ref="ASYNC_CONSOLE"/>
-<!--        <appender-ref ref="ASYNC_FILE"/>-->
-    </logger>
-
-    <springProfile name="prod">
-        <!-- OpenTelemetry Logback Appender -->
-        <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+    <springProfile name="dev">
+        <!-- OTEL Logback Appender -->
+        <appender name="OTEL_LOG" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureExperimentalAttributes>true</captureExperimentalAttributes>
+            <captureCodeAttributes>true</captureCodeAttributes>
+            <captureMarkerAttribute>true</captureMarkerAttribute>
+            <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+            <captureLoggerContext>true</captureLoggerContext>
+            <captureMdcAttributes>*</captureMdcAttributes>
         </appender>
 
-        <!-- Async Appender wrapping the console appender -->
-        <appender name="ASYNC_OTEL" class="ch.qos.logback.classic.AsyncAppender">
-            <appender-ref ref="OTEL"/>
-            <!-- Optional: Drop logs if queue is full to avoid blocking -->
-            <discardingThreshold>0</discardingThreshold>
-            <queueSize>5000</queueSize>
-            <includeCallerData>false</includeCallerData>
-        </appender>
-
-        <root level="INFO" additivity="false">
-            <appender-ref ref="ASYNC_OTEL"/>
+        <root level="INFO" additivity="true">
+            <appender-ref ref="OTEL_LOG"/>
         </root>
-
-        <logger name="org.springframework" level="WARN" additivity="false">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
-
-        <logger name="org.springframework.boot.web.embedded.tomcat" level="INFO" additivity="false">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
-
-        <logger name="org.springframework.boot.docker.compose" level="DEBUG" additivity="false">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
-
-        <logger name="org.springframework.web" level="WARN" additivity="false">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
-
-        <logger name="org.springframework.web.servlet.DispatcherServlet" additivity="false" level="DEBUG">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
-
-        <logger name="io.akikr.demopostgredbapp.config.AppLoggingFilter" additivity="false" level="DEBUG">
-            <appender-ref ref="ASYNC_OTEL"/>
-        </logger>
     </springProfile>
-
 </configuration>
