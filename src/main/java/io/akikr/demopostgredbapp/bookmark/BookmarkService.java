@@ -1,10 +1,9 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
-
-sealed interface BookmarkService permits BookmarkServiceImpl{
+sealed interface BookmarkService permits BookmarkServiceImpl {
 
     ResponseEntity<Map<String, Object>> getAllBookmarks(Integer pageNumber, Integer pageSize);
 

@@ -7,13 +7,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
-
-import java.io.IOException;
 
 @Component
 public class AppLoggingFilter extends GenericFilter {
@@ -27,7 +26,8 @@ public class AppLoggingFilter extends GenericFilter {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
         ContentCachingRequestWrapper requestWrapper = requestWrapper(servletRequest);
         ContentCachingResponseWrapper responseWrapper = responseWrapper(servletResponse);
 
@@ -53,7 +53,7 @@ public class AppLoggingFilter extends GenericFilter {
 
     private void logResponse(ContentCachingResponseWrapper response) {
         var body = "[Not Logged]";
-        if (appLoggingProperties.includeRequestBody()){
+        if (appLoggingProperties.includeRequestBody()) {
             body = new String(response.getContentAsByteArray());
             if (body.length() > appLoggingProperties.maxBodyLength()) {
                 body = body.substring(0, appLoggingProperties.maxBodyLength()) + "...[truncated]";

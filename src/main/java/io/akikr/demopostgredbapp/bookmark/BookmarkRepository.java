@@ -1,15 +1,14 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 class BookmarkRepository {
@@ -31,7 +30,8 @@ class BookmarkRepository {
         // Getting offset value from pageNumber and pageSize
         var offset = (pageNumber * pageSize);
 
-        return jdbcClient.sql(SELECT_BOOKMARKS_QUERY)
+        return jdbcClient
+                .sql(SELECT_BOOKMARKS_QUERY)
                 .param("offset", offset)
                 .param("limit", pageSize)
                 .query(Bookmark.class)
@@ -44,13 +44,14 @@ class BookmarkRepository {
                 SELECT id, title, url, created_at FROM bookmarks WHERE id = :id
                 """;
 
-        return jdbcClient.sql(SELECT_BOOKMARK_BY_ID_QUERY)
+        return jdbcClient
+                .sql(SELECT_BOOKMARK_BY_ID_QUERY)
                 .param("id", id)
                 .query(Bookmark.class)
                 .optional();
     }
 
-    @Transactional(rollbackFor =  Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Long save(Bookmark bookmark) {
         final String INSERT_BOOKMARK_QUERY = """
                 INSERT INTO bookmarks (title, url, created_at) VALUES (:title, :url, :createdAt)
@@ -58,7 +59,8 @@ class BookmarkRepository {
                 """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcClient.sql(INSERT_BOOKMARK_QUERY)
+        jdbcClient
+                .sql(INSERT_BOOKMARK_QUERY)
                 .param("title", bookmark.title())
                 .param("url", bookmark.url())
                 .param("createdAt", Timestamp.from(Instant.now()))
@@ -66,13 +68,14 @@ class BookmarkRepository {
         return keyHolder.getKeyAs(Long.class);
     }
 
-    @Transactional(rollbackFor =  Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Boolean update(Bookmark bookmark) throws IllegalArgumentException {
         final String UPDATE_BOOKMARK_QUERY = """
                 UPDATE bookmarks SET title = :title, url = :url WHERE id = :id
                 """;
 
-        int updatedCount = jdbcClient.sql(UPDATE_BOOKMARK_QUERY)
+        int updatedCount = jdbcClient
+                .sql(UPDATE_BOOKMARK_QUERY)
                 .param("id", bookmark.id())
                 .param("title", bookmark.title())
                 .param("url", bookmark.url())
@@ -83,15 +86,14 @@ class BookmarkRepository {
         return Boolean.TRUE;
     }
 
-    @Transactional(rollbackFor =  Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Boolean deleteById(Long id) throws IllegalArgumentException {
         final String DELETE_BOOKMARK_BY_ID_QUERY = """
                 DELETE FROM bookmarks WHERE id = :id
                 """;
 
-        int deleted = jdbcClient.sql(DELETE_BOOKMARK_BY_ID_QUERY)
-                .param("id", id)
-                .update();
+        int deleted =
+                jdbcClient.sql(DELETE_BOOKMARK_BY_ID_QUERY).param("id", id).update();
         if (deleted == 0) {
             throw new IllegalStateException("Bookmark NOT found with id: " + id);
         }

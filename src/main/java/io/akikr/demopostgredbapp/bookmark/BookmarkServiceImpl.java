@@ -1,16 +1,15 @@
 package io.akikr.demopostgredbapp.bookmark;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
+
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 
 @Service
 final class BookmarkServiceImpl implements BookmarkService {
@@ -32,13 +31,15 @@ final class BookmarkServiceImpl implements BookmarkService {
             List<Bookmark> bookmarks = bookmarkRepository.findAll(pageNumber, pageSize);
             if (bookmarks.isEmpty()) {
                 log.warn("No bookmarks found for pageNumber[{}] and pageSize[{}]", pageNumber, pageSize);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Bookmarks not found"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Bookmarks not found"));
             }
-            return ResponseEntity.ok()
-                    .body(Map.of("data", bookmarks));
+            return ResponseEntity.ok().body(Map.of("data", bookmarks));
         } catch (Exception e) {
-            log.error("Error fetching all bookmarks for pageNumber[{}] and pageSize[{}], due to: {}", pageNumber, pageSize, e.getMessage());
+            log.error(
+                    "Error fetching all bookmarks for pageNumber[{}] and pageSize[{}], due to: {}",
+                    pageNumber,
+                    pageSize,
+                    e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "An error occurred while fetching the bookmark"));
         }
@@ -48,13 +49,12 @@ final class BookmarkServiceImpl implements BookmarkService {
     public ResponseEntity<Map<String, Object>> getBookmarkById(Long id) {
         log.info("Fetching bookmark by ID: {}", id);
         try {
-            Bookmark bookmark = bookmarkRepository.findById(id)
+            Bookmark bookmark = bookmarkRepository
+                    .findById(id)
                     .orElseThrow(() -> new IllegalStateException("Bookmark NOT found with id: " + id));
-            return ResponseEntity.ok()
-                    .body(Map.of("data", bookmark));
+            return ResponseEntity.ok().body(Map.of("data", bookmark));
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             log.error("Error fetching bookmark by ID: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -72,8 +72,7 @@ final class BookmarkServiceImpl implements BookmarkService {
                     .body(Map.of("id", savedId, "message", "Bookmark created successfully"));
         } catch (Exception e) {
             log.error("Error creating bookmark: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -96,7 +95,7 @@ final class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public ResponseEntity<Map<String, Object>> deleteBookmarkById(Long id) {
-    log.info("Deleting bookmark with ID: {}", id);
+        log.info("Deleting bookmark with ID: {}", id);
         try {
             Boolean isDeleted = bookmarkRepository.deleteById(id);
             if (isDeleted) {
@@ -107,8 +106,7 @@ final class BookmarkServiceImpl implements BookmarkService {
         } catch (Exception e) {
             log.error("{}", e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "Bookmark not found with ID: " + id));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Bookmark not found with ID: " + id));
     }
 
     private static void isPageNumberOrPageSizeValid(Integer pageNumber, Integer pageSize) throws IllegalStateException {
