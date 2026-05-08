@@ -25,7 +25,7 @@ DOCKER_COMPOSE := docker compose
 # Set the default goal to 'help' so that running 'make' shows the help message.
 .DEFAULT_GOAL := help
 
-.PHONY: help all run test clean
+.PHONY: help all run test clean build format lint
 
 all: test run ## Run both 'test' and 'run' targets sequentially.
 
@@ -33,10 +33,12 @@ help: ## ✨ Show this help message.
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Workflow:"
-	@echo " 1. Test services:       make test"
-	@echo " 2. Build the project:   make build"
-	@echo " 2. Run the app:         make run"
-	@echo " 3. Clean-up services:   make clean"
+	@echo " 1. Format code:         make format"
+	@echo " 2. Check formatting:    make lint"
+	@echo " 3. Test services:       make test"
+	@echo " 4. Build the project:   make build"
+	@echo " 5. Run the app:         make run"
+	@echo " 6. Clean-up services:   make clean"
 	@echo ""
 	@echo " When finished, press Ctrl+C to stop"
 	@echo ""
@@ -48,6 +50,14 @@ clean: ## 🧹 Clean the Maven project and Docker environment.
 	@$(SDK_ENV) && $(MVN) clean
 	@echo "--- 🚮 Cleaning up Docker environment ---"
 	@$(DOCKER_COMPOSE) down --volumes
+
+format: ## ✅ Format Java sources with Spotless via Maven.
+	@echo "--- ✅ Formatting Java sources with Spotless ---"
+	@$(SDK_ENV) && $(MVN) spotless:apply
+
+lint: ## 🔎 Check Java formatting with Spotless via Maven.
+	@echo "--- 🔎 Checking Java formatting with Spotless ---"
+	@$(SDK_ENV) && $(MVN) spotless:check
 
 test: ## 🧪 Run tests with Testcontainers and Colima environment.
 	@echo "--- 🧪 Running tests with Testcontainers environment ---"
