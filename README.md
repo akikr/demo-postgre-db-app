@@ -1,4 +1,4 @@
-# A demo-postgre-app
+# A demo-postgres-app
 
 The application provides a set of endpoints to perform CRUD (Create, Read, Update, Delete) operations on bookmarks, which are stored in a PostgreSQL database. It's a great
  example of how to integrate a database with a Spring Boot application, and it's designed to be easy to understand and run.
@@ -79,7 +79,7 @@ The project also includes a `compose.yml` to be used by spring-boot docker-compo
 
 ## Conclusion
 
-The `demo-postgre-app` project is a great starting point for anyone looking to learn how to build a simple RESTful API with Spring Boot and PostgreSQL. It's designed to be easy to understand and run, and it provides a solid foundation for building more complex applications.
+The `demo-postgres-app` project is a great starting point for anyone looking to learn how to build a simple RESTful API with Spring Boot and PostgreSQL. It's designed to be easy to understand and run, and it provides a solid foundation for building more complex applications.
 
 ## Contributing
 
