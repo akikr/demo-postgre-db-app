@@ -81,7 +81,7 @@ The project also includes a `compose.yml` to be used by spring-boot docker-compo
 
 - The images are scanned using [cve-scan](cve-scan.sh) script and the result of CEVs for every type of images are as follows: 
 
-**Scanned image: `app/postgre-app-native:v0`**
+**Scanned image: `app/postgres-app-native:v0`**
 
 ```txt
 NAME               INSTALLED  FIXED IN  TYPE          VULNERABILITY        SEVERITY  EPSS           RISK
@@ -105,7 +105,7 @@ jackson-core       3.0.3      3.1.1     java-archive  GHSA-2m67-wjpj-xhg9  High 
 jackson-core       3.0.3      3.1.0     java-archive  GHSA-72hv-8253-57qq  Medium    N/A            N/A
 ```
 
-**Scanned image: `app/postgre-app-jre:v1`**
+**Scanned image: `app/postgres-app-jre:v1`**
 
 ```txt
 NAME               INSTALLED  FIXED IN                                           TYPE            VULNERABILITY        SEVERITY  EPSS           RISK
@@ -145,7 +145,7 @@ jackson-core       3.0.3      3.1.1                                             
 jackson-core       3.0.3      3.1.0                                              java-archive    GHSA-72hv-8253-57qq  Medium    N/A            N/A
 ```
 
-**Scanned image: `app/postgre-app-jib:v1`**
+**Scanned image: `app/postgres-app-jib:v1`**
 
 ```txt
 NAME                          INSTALLED   FIXED IN  TYPE          VULNERABILITY        SEVERITY  EPSS           RISK
@@ -189,7 +189,7 @@ jackson-core                  3.0.3       3.1.1     java-archive  GHSA-2m67-wjpj
 jackson-core                  3.0.3       3.1.0     java-archive  GHSA-72hv-8253-57qq  Medium    N/A            N/A
 ```
 
-**Scanned image: `app/postgre-app-sb:v1`**
+**Scanned image: `app/postgres-app-sb:v1`**
 
 ```txt
 NAME               INSTALLED                FIXED IN         TYPE          VULNERABILITY        SEVERITY    EPSS           RISK
