@@ -21,7 +21,7 @@ services:
       - dev.env
 
   app-native:
-    image: app/postgre-app-native:v0
+    image: app/postgres-app-native:v0
     build:
       context: .
       dockerfile: native.Dockerfile
@@ -49,7 +49,7 @@ services:
 #      - /tmp/app:/var/logs
 
   app-jre:
-    image: app/postgre-app-jre:v1
+    image: app/postgres-app-jre:v1
     build:
       context: .
       dockerfile: jre.Dockerfile
@@ -79,7 +79,7 @@ services:
 
   ##To build this image: ./mvnw clean package jib:dockerBuild -DskipTests
   app-jib:
-    image: app/postgre-app-jib:v1
+    image: app/postgres-app-jib:v1
     environment:
       DB_HOST: 'postgres-db'
       DB_PORT: '5432'
@@ -102,7 +102,7 @@ services:
 
   ##To build this image: ./mvnw clean package spring-boot:build-image-no-fork -DskipTests -Dspring-boot.build-image.env.BP_BASE_IMAGE="paketobuildpacks/builder-noble-java-tiny:latest" -Dspring-boot.build-image.env.BP_NATIVE_IMAGE_BUILD_ARGUMENTS="-H:Architecture=linux/amd64"
   app-sb:
-    image: app/postgre-app-sb:v1
+    image: app/postgres-app-sb:v1
     environment:
       DB_HOST: 'postgres-db'
       DB_PORT: '5432'

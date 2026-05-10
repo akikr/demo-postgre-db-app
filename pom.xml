@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>io.akikr</groupId>
-    <artifactId>postgre-app</artifactId>
+    <artifactId>postgres-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo-postgre-app</name>
-    <description>Demo Postgre DB Application</description>
+    <name>demo-postgres-app</name>
+    <description>Demo Postgres DB Application</description>
     <url>https://github.com/akikr/demo-postgre-db-app</url>
 
     <licenses>

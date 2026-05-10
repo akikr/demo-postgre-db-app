@@ -33,7 +33,7 @@ RUN echo "appuser:x:1000:1000:appuser:/home/appuser:/bin/false" >> /staging/etc/
 # Set the scratch for final stage
 FROM scratch
 # Set the maintainer label
-LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgre-db-app"
+LABEL org.opencontainers.image.source="https://github.com/akikr/demo-postgres-db-app"
 LABEL maintainer="ankit akikr@duck.com"
 WORKDIR /usr/webapp
 # Copy the chiseled Ubuntu filesystem

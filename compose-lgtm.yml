@@ -37,7 +37,7 @@ services:
         start_period: 30s
 
   app-jre:
-    image: app/postgre-app-jre:v1
+    image: app/postgres-app-jre:v1
     build:
       context: .
       dockerfile: jre.Dockerfile
@@ -79,7 +79,7 @@ services:
         condition: service_started
 
   app-native:
-    image: app/postgre-app-native:v0
+    image: app/postgres-app-native:v0
     build:
       context: .
       dockerfile: native.Dockerfile

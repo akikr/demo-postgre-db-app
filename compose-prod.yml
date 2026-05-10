@@ -52,7 +52,7 @@ services:
 # To load schema via SQL scripts: docker exec -it yugabyte-db bash -c 'PGPASSWORD=secret /home/yugabyte/bin/ysqlsh -h $(hostname) -U my_user -d my_db -f /docker-entrypoint-initdb.d/*.sql'
 
   app-jre:
-    image: app/postgre-app-jre:v1
+    image: app/postgres-app-jre:v1
     build:
       context: .
       dockerfile: jre.Dockerfile
@@ -62,7 +62,7 @@ services:
       DB_NAME: '${DB_NAME}'
       DB_USER: '${DB_USER}'
       DB_PASSWORD: '${DB_PASSWORD}'
-      OTEL_SERVICE_NAME: demo-postgre-app
+      OTEL_SERVICE_NAME: demo-postgres-app
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
       OTEL_PROFILING_ENABLED: "true"
       OTEL_TRACES_EXPORTER: otlp
@@ -101,7 +101,7 @@ services:
       - .env
 
   app-native:
-      image: app/postgre-app-native:v0
+      image: app/postgres-app-native:v0
       build:
         context: .
         dockerfile: native.Dockerfile
